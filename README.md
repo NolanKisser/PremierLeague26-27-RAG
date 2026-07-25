@@ -1,24 +1,32 @@
-# Compliance & Audit Co-Pilot (RegTech)
+# Premier League RAG Predictor
 
-A Retrieval-Augmented Generation (RAG) platform tailored for regulatory compliance. It leverages PyTorch and Hugging Face `transformers` to ingest public regulations (e.g., GDPR, HIPAA) and private corporate documents, index them in a custom PyTorch-based vector store, and audit draft contracts for potential compliance violations.
+A Retrieval-Augmented Generation (RAG) platform tailored for predicting the upcoming Premier League table. It leverages PyTorch and Hugging Face `transformers` to ingest football news, transfer updates, injury reports, and historical stats, index them in a custom PyTorch-based vector store, and predict the 20-team final standings based on this contextual data.
 
 ## The Problem
-Corporations spend millions of dollars annually ensuring that their contracts, marketing materials, and internal procedures comply with rapidly changing laws (e.g., GDPR, HIPAA, SEC regulations, ESG guidelines). Relying solely on manual legal review is slow, expensive, and prone to human error.
+Predicting the Premier League table is incredibly difficult due to the sheer volume of variables: managerial changes, unexpected transfers, long-term injuries, and pre-season form. Traditional statistical models often miss the qualitative nuance of breaking news and squad harmony.
 
 ## The RAG Solution
-This platform ingests public regulatory databases alongside a company's private contracts, standard operating procedures (SOPs), and marketing drafts. When a compliance officer or attorney drafts a document, the Co-Pilot checks it against current regulations in real-time, highlights potential violations, and suggests regulatory-compliant revisions with direct citations to the source legislation.
+This platform ingests various sources of textual data (news articles, team press releases, fan sentiment analysis). When a user asks for a table prediction, the Predictor checks the most relevant and recent news from the vector database, analyzes the sentiment and impact of those events, and adjusts its baseline 20-team prediction accordingly.
 
-## Why RAG is Critical Here
-- **Minimizing Hallucinations:** Regulatory laws change frequently. RAG ensures the model's responses are grounded in actual, retrieved legal text rather than just its pre-trained weights.
-- **Exact Citations:** The model must provide exact citations to the relevant sections of the law (e.g., Article 12 of GDPR), which RAG naturally supports.
-- **Data Privacy:** The training data of public LLMs does not contain the private, proprietary contracts being audited. By building a local vector index, private data stays private.
+## Real-World Data Collection Strategies
+To move beyond mock data, you can collect real-world data using the following methods:
+
+1. **Previous Seasons & Match Stats**:
+   - **Football-Data.org API**: Provides comprehensive historical match data, standings, and basic team stats.
+   - **FBref (via web scraping)**: Excellent source for advanced metrics like xG (expected goals), shot-creating actions, and possession stats. You can use Python libraries like `BeautifulSoup` or `pandas` (via `read_html`) to scrape this.
+2. **FIFA Player and Team Ratings**:
+   - **EA Sports FC / FIFA API / Kaggle Datasets**: Kaggle regularly hosts up-to-date datasets of all player attributes, overall ratings, and potential from the FIFA video games. These can be embedded as text (e.g., "Arsenal has an overall squad rating of 85, with star player Bukayo Saka rated 87").
+   - **SoFIFA scraping**: A popular site for FIFA ratings that can be scraped for the latest squad updates.
+3. **News & Transfer Rumors**:
+   - **NewsAPI or GNews API**: Search for articles relating to "Premier League", specific teams, or "transfers" to ingest daily news.
+   - **Twitter/X API**: Great for real-time injury updates (e.g., from accounts like @FFScout or Fabrizio Romano for transfers).
 
 ## Architecture
 
-1. **Document Ingestion**: Parses and chunks public regulations and private policies.
+1. **Document Ingestion**: Parses and chunks news articles and statistics.
 2. **PyTorch Embedder**: Uses Hugging Face `transformers` to convert chunks into dense vector embeddings.
 3. **PyTorch Vector Store**: A custom PyTorch tensor-based vector database that performs fast cosine-similarity search.
-4. **Auditor (Generator)**: Compares draft text against the retrieved relevant legal context and generates a compliance report.
+4. **Predictor**: Retrieves the most relevant news context based on the query and formulates a full 20-team prediction table.
 
 ## Setup and Execution
 
@@ -31,8 +39,5 @@ This platform ingests public regulatory databases alongside a company's private 
    ```bash
    python main.py
    ```
-   *This script will automatically generate sample public/private documents, index them, and run a sample audit against a non-compliant draft contract.*
+   *This script will automatically generate sample news/stats data for all 20 teams, index them, and predict the final table based on this context.*
 
-## Monetization Strategy
-- **SaaS Subscription (B2B)**: Tiered seat-based pricing targeting legal and compliance teams.
-- **Enterprise Plan**: Dedicated, self-hosted or private cloud deployments with strict data privacy boundaries.
