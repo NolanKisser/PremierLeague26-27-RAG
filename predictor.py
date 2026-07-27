@@ -1,12 +1,15 @@
 import torch
+import requests
+import json
 
 class LeaguePredictor:
     """
     Predicts the Premier League table by leveraging a VectorStore of news and stats.
     """
-    def __init__(self, embedder, vector_store):
+    def __init__(self, embedder, vector_store, ollama_model="llama3"):
         self.embedder = embedder
         self.vector_store = vector_store
+        self.ollama_model = ollama_model
 
         # Baseline prediction (alphabetical or last season's rough order)
         self.base_teams = [
@@ -29,61 +32,51 @@ class LeaguePredictor:
         # 2. Retrieve top matching news/stats chunks (let's grab the top 5 most relevant pieces of news)
         matches = self.vector_store.search(query_embedding, top_k=5)
         
-        # 3. Simulate an LLM adjusting the table based on retrieved context.
-        # We will keep a score for each team based on the retrieved context sentiment.
-        # Positive keywords boost a team, negative keywords drop a team.
-        team_scores = {team: 0 for team in self.base_teams}
-        
-        positive_keywords = ["signs", "retains", "improves", "wins", "dominates", "strong", "excellent", "star"]
-        negative_keywords = ["injury", "woes", "loses", "sacked", "struggles", "poor", "weakness"]
-
+        # 3. Call local Ollama LLM to generate the prediction based on the retrieved context.
         retrieved_context_texts = []
         for match in matches:
             text = match["metadata"].get("text", "")
             retrieved_context_texts.append(text.strip())
-            text_lower = text.lower()
             
-            # Simple keyword matching to simulate sentiment analysis
-            for team in self.base_teams:
-                if team.lower() in text_lower:
-                    for pos in positive_keywords:
-                        if pos in text_lower:
-                            team_scores[team] += 2
-                    for neg in negative_keywords:
-                        if neg in text_lower:
-                            team_scores[team] -= 2
-
-        # Add some randomness to teams without news, or just leave them at 0
-        # To make a realistic base table before applying the news deltas, let's establish a base tier
-        base_tiers = {
-            "Manchester City": 90, "Arsenal": 88, "Liverpool": 85, "Chelsea": 75,
-            "Tottenham Hotspur": 75, "Manchester United": 72, "Newcastle United": 70,
-            "Aston Villa": 68, "West Ham United": 60, "Brighton & Hove Albion": 58,
-            "Bournemouth": 50, "Crystal Palace": 50, "Fulham": 48, "Wolverhampton Wanderers": 45,
-            "Everton": 40, "Brentford": 40, "Nottingham Forest": 35,
-            "Leicester City": 30, "Southampton": 28, "Ipswich Town": 25
-        }
+        context_str = "\n\n---\n\n".join(retrieved_context_texts)
         
-        # Apply news deltas
-        final_scores = {}
-        for team in self.base_teams:
-            final_scores[team] = base_tiers.get(team, 30) + team_scores[team]
+        prompt = (
+            f"You are a Premier League football expert. Based on the following retrieved context "
+            f"and your own knowledge, answer the user's query.\n\n"
+            f"Context:\n{context_str}\n\n"
+            f"User Query:\n{query}\n\n"
+            f"Prediction:"
+        )
 
-        # Sort teams by final score descending
-        sorted_teams = sorted(final_scores.keys(), key=lambda x: final_scores[x], reverse=True)
-
-        # Formulate report
-        report = []
-        report.append("### Predicted Premier League Table (1-20)\n")
+        print(f"Calling Ollama (model: {self.ollama_model}) for generation...")
         
-        for idx, team in enumerate(sorted_teams):
-            report.append(f"{idx + 1}. {team}")
+        try:
+            response = requests.post(
+                "http://localhost:11434/api/generate",
+                json={
+                    "model": self.ollama_model,
+                    "prompt": prompt,
+                    "stream": False
+                }
+            )
+            response.raise_for_status()
             
-        report.append("\n**Key Factors (Retrieved Context):**")
-        if not retrieved_context_texts:
-            report.append("> No significant news found.")
-        else:
-            for ctx in retrieved_context_texts:
-                report.append(f"> \"{ctx}\"")
-                
-        return "\n".join(report)
+            data = response.json()
+            generation = data.get("response", "")
+            
+            # Formulate report
+            report = []
+            report.append(f"### Prediction from Ollama ({self.ollama_model})\n")
+            report.append(generation)
+            
+            report.append("\n**Key Factors (Retrieved Context):**")
+            if not retrieved_context_texts:
+                report.append("> No significant news found.")
+            else:
+                for ctx in retrieved_context_texts:
+                    report.append(f"> \"{ctx}\"")
+                    
+            return "\n".join(report)
+            
+        except requests.exceptions.RequestException as e:
+            return f"Error communicating with Ollama: {str(e)}\n\nMake sure Ollama is running locally and the model '{self.ollama_model}' is pulled."
