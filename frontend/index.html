@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Premier League Predictor</title>
+    <!-- Use a modern Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <div class="background-blob blob-1"></div>
+    <div class="background-blob blob-2"></div>
+    
+    <main class="glass-container">
+      <header>
+        <h1>PL Predictor <span class="badge">RAG AI</span></h1>
+        <p>Predict the final table based on real-time FPL stats and news.</p>
+      </header>
+      
+      <section class="query-section">
+        <form id="predict-form">
+          <div class="input-group">
+            <textarea id="query-input" rows="2" placeholder="e.g., Predict the final 20-team Premier League table considering the latest FPL stats..." required></textarea>
+            <button type="submit" id="submit-btn">
+              <span class="btn-text">Generate Prediction</span>
+              <div class="loader hidden" id="btn-loader"></div>
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section class="results-section hidden" id="results-container">
+        <div class="results-header">
+          <h2>Prediction Results</h2>
+        </div>
+        <div class="results-content markdown-body" id="results-content">
+          <!-- Dynamic content will go here -->
+        </div>
+      </section>
+    </main>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

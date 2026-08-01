@@ -29,14 +29,14 @@ class Embedder:
         """
         # Tokenize sentences
         encoded_input = self.tokenizer(texts, padding=True, truncation=True, max_length=256, return_tensors='pt').to(self.device)
-
+        
         # Compute token embeddings
         with torch.no_grad():
             model_output = self.model(**encoded_input)
-
+        
         # Perform pooling
         sentence_embeddings = self.mean_pooling(model_output, encoded_input['attention_mask'])
-
+        
         # Normalize embeddings for cosine similarity
         sentence_embeddings = torch.nn.functional.normalize(sentence_embeddings, p=2, dim=1)
         

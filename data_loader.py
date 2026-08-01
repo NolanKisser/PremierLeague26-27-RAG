@@ -114,5 +114,23 @@ class DataLoader:
             
             metadata = {"source": f"Player Stats: {first} {last}", "category": "csv"}
             all_chunks.extend(self.chunk_text(text, metadata))
-            
+
+        # Process Gameweek Summaries if available
+        gw_path = os.path.join(directory_path, "gameweek_summaries.csv")
+        if os.path.exists(gw_path):
+            gw_df = pd.read_csv(gw_path)
+            for _, row in gw_df.iterrows():
+                # Only process gameweeks that have finished or have valid data
+                if row.get('finished', False):
+                    gw_name = row.get('name', 'Unknown GW')
+                    highest_score = row.get('highest_score', 0)
+                    top_element = row.get('top_element_info', '')
+                    
+                    text = f"{gw_name} has finished. The highest score was {highest_score}."
+                    if pd.notna(top_element) and top_element:
+                        text += f" Top element info: {top_element}."
+                    
+                    metadata = {"source": f"Gameweek: {gw_name}", "category": "csv"}
+                    all_chunks.extend(self.chunk_text(text, metadata))
+
         return all_chunks

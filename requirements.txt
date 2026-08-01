@@ -4,3 +4,5 @@ numpy
 tqdm
 pandas
 requests
+fastapi
+uvicorn

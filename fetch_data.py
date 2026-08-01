@@ -27,6 +27,14 @@ def fetch_all_data():
     stats_url = "https://raw.githubusercontent.com/olbauday/FPL-Core-Insights/main/data/2026-2027/playerstats.csv"
     download_file(stats_url, os.path.join(base_dir, "playerstats.csv"))
     
+    print("Fetching FPL Core Insights (Gameweek Summaries)...")
+    gw_url = "https://raw.githubusercontent.com/olbauday/FPL-Core-Insights/main/data/2026-2027/gameweek_summaries.csv"
+    download_file(gw_url, os.path.join(base_dir, "gameweek_summaries.csv"))
+
+    print("Fetching FPL Core Insights (Team History)...")
+    team_hist_url = "https://raw.githubusercontent.com/olbauday/FPL-Core-Insights/main/data/2026-2027/team_history.csv"
+    download_file(team_hist_url, os.path.join(base_dir, "team_history.csv"))
+    
     print("All data fetched successfully.")
 
 if __name__ == "__main__":
