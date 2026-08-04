@@ -6,3 +6,5 @@ pandas
 requests
 fastapi
 uvicorn
+slowapi
+duckduckgo-search

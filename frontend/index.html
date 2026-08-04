@@ -9,6 +9,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./style.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.3/purify.min.js"></script>
   </head>
   <body>
     <div class="background-blob blob-1"></div>
@@ -16,29 +18,23 @@
     
     <main class="glass-container">
       <header>
-        <h1>PL Predictor <span class="badge">RAG AI</span></h1>
+        <h1>PL Predictor 2026-27 <span class="badge">RAG AI</span></h1>
         <p>Predict the final table based on real-time FPL stats and news.</p>
       </header>
       
-      <section class="query-section">
-        <form id="predict-form">
-          <div class="input-group">
-            <textarea id="query-input" rows="2" placeholder="e.g., Predict the final 20-team Premier League table considering the latest FPL stats..." required></textarea>
-            <button type="submit" id="submit-btn">
-              <span class="btn-text">Generate Prediction</span>
-              <div class="loader hidden" id="btn-loader"></div>
-            </button>
-          </div>
-        </form>
+      <section class="loading-section" id="loading-container">
+        <div class="loader-large"></div>
+        <p id="loading-text">Generating live predictions from the RAG Vector Store...</p>
       </section>
 
       <section class="results-section hidden" id="results-container">
         <div class="results-header">
-          <h2>Prediction Results</h2>
+          <h2>Projected Standings</h2>
         </div>
-        <div class="results-content markdown-body" id="results-content">
-          <!-- Dynamic content will go here -->
+        <div class="standings-list" id="standings-list">
+          <!-- Dynamic table rows will go here -->
         </div>
+        <div class="error-content hidden" id="error-content"></div>
       </section>
     </main>
     <script type="module" src="./main.js"></script>

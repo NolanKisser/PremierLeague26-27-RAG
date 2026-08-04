@@ -5,9 +5,11 @@ A Retrieval-Augmented Generation (RAG) platform tailored for predicting the upco
 ## The Problem
 Predicting the Premier League table is incredibly difficult due to the sheer volume of variables: managerial changes, unexpected transfers, long-term injuries, and pre-season form. Traditional statistical models often miss the qualitative nuance of breaking news and squad harmony.
 
-## The RAG Solution
-This platform ingests various sources of textual data (news articles, team press releases, fan sentiment analysis). When a user asks for a table prediction, the Predictor checks the most relevant and recent news from the vector database, analyzes the sentiment and impact of those events, and adjusts its baseline 20-team prediction accordingly.
-
+## The Agentic RAG Solution
+This platform goes beyond basic RAG by implementing **Agentic RAG with Live Web Search**. When a user asks for a table prediction:
+1. The backend performs a live web search (via DuckDuckGo) for the latest Premier League news and FPL statistics.
+2. It injects this fresh, real-time context into the prompt.
+3. The local LLM (Ollama) analyzes the sentiment and impact of those real-world events and formulates a full 20-team prediction table for the 2026/27 season.
 ## Real-World Data Collection Strategies
 To move beyond mock data, you can collect real-world data using the following methods:
 
@@ -23,10 +25,10 @@ To move beyond mock data, you can collect real-world data using the following me
 
 ## Architecture
 
-1. **Document Ingestion**: Parses and chunks news articles and statistics.
-2. **PyTorch Embedder**: Uses Hugging Face `transformers` to convert chunks into dense vector embeddings.
-3. **PyTorch Vector Store**: A custom PyTorch tensor-based vector database that performs fast cosine-similarity search.
-4. **Predictor**: Retrieves the most relevant news context based on the query and formulates a full 20-team prediction table.
+1. **Agentic Web Search**: Dynamically queries the web for the latest Premier League news using `duckduckgo-search`.
+2. **FastAPI Backend**: Provides a robust API endpoint (`/api/predict`) and serves official team PNG logos via `StaticFiles`.
+3. **Local LLM Generation**: Uses a local Ollama instance to generate strictly formatted JSON predictions based on the retrieved context.
+4. **Vite + Vanilla JS Frontend**: A glassmorphism-styled web interface that renders the prediction table and fetches real team crests from the backend.
 
 ## Setup and Execution
 
@@ -35,9 +37,17 @@ To move beyond mock data, you can collect real-world data using the following me
    pip install -r requirements.txt
    ```
 
-2. **Run the prototype**:
+2. **Start the FastAPI Backend**:
    ```bash
-   python main.py
+   uvicorn api:app --reload
    ```
-   *This script will automatically generate sample news/stats data for all 20 teams, index them, and predict the final table based on this context.*
 
+3. **Start the Vite Frontend**:
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+
+4. **Ensure Ollama is running**:
+   Make sure you have Ollama installed and a model available (e.g., `llama3`) running locally to process the predictions.
